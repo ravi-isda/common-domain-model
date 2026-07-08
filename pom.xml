@@ -12,7 +12,7 @@
     <name>Common Domain Model</name>
     <groupId>org.finos.cdm</groupId>
     <artifactId>cdm-parent</artifactId>
-    <version>0.0.0.master-SNAPSHOT</version>
+    <version>6.20.6-translate-extension</version>
     <packaging>pom</packaging>
     <url>https://www.finos.org/common-domain-model</url>
 
@@ -81,7 +81,7 @@
         <!-- release version is overridden in rosetta-source -->
         <maven.compiler.release>11</maven.compiler.release>
 
-        <rune-fpml.version>1.5.3</rune-fpml.version>
+        <rune-fpml.version>1.5.3-translate-extension</rune-fpml.version>
         <rosetta.dsl.version>9.83.0</rosetta.dsl.version>
         <rosetta.bundle.version>11.120.2</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>

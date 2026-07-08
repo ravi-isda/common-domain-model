@@ -1,0 +1,41 @@
+namespace cdm.mybank.fpml.extended
+version "${project.version}"
+
+import cdm.base.staticdata.identifier.*
+import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.message.*
+import fpml.consolidated.mybank.extended.*
+import fpml.consolidated.main.* as fpml
+
+type ExtendedTradeState:
+    tradeState TradeState (0..1)
+    extendedValue string (0..1)
+
+func Ingest_ExtendedFpmlToExtendedTradeState:
+    inputs:
+        fpmlDataDocument fpml.DataDocument (0..1)
+        extendedDocument ExtendedDocument (0..1)
+    output:
+        extendedTradeState ExtendedTradeState (0..1)
+
+    set extendedTradeState -> tradeState:
+        MapDataDocumentToTradeState(fpmlDataDocument)
+
+    set extendedTradeState -> extendedValue:
+        extendedDocument -> trade only-element -> tradeHeader -> extendedType -> extendedValue
+
+    add extendedTradeState -> tradeState -> trade -> tradeIdentifier:
+        TradeIdentifier {
+            issuer: MapStringWithScheme("MyBank", "http://www.mybank.com/identifier"),
+            assignedIdentifier: [
+                AssignedIdentifier {
+                    identifier: MapStringWithScheme(
+                        extendedDocument -> trade only-element -> tradeHeader -> extendedType -> extendedValue,
+                        "http://www.mybank.com/identifier"
+                    ),
+                    ...
+                }
+            ],
+            ...
+        }
