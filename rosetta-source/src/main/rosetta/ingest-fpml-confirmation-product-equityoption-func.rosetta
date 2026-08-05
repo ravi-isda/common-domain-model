@@ -87,6 +87,10 @@ func MapEquityOptionPayout:
     alias passThroughItem: fpmlEquityOption -> feature -> passThrough -> passThroughItem
     alias apo: fpmlEquityOption -> feature -> asian -> averagingPeriodOut
     alias api: fpmlEquityOption -> feature -> asian -> averagingPeriodIn
+    alias featurePayment: <"Extracts the FpML featurePayment nested inside feature -> barrier. Presence signals a digital (binary) equity option: payout is a fixed cash amount rather than a percentage of the underlier. Per FpML 4.0 Equity Derivatives Architecture, equity binary/digital options are structurally expressed as barrier options with a fixed featurePayment.">
+        [fpmlEquityOption -> feature -> barrier -> barrierCap -> featurePayment,
+         fpmlEquityOption -> feature -> barrier -> barrierFloor -> featurePayment]
+            first
 
     set payout:
         Payout {
@@ -105,7 +109,13 @@ func MapEquityOptionPayout:
                                     ),
                             ...
                         },
-                    settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
+                    settlementTerms:
+                        if featurePayment exists
+                        then MapEquityDigitalOptionSettlementTerms(
+                                fpmlEquityOption -> equityExercise,
+                                featurePayment
+                            )
+                        else MapEquityExerciseValuationSettlementToSettlementTerms(
                                 fpmlEquityOption -> equityExercise,
                                 empty
                             ),
@@ -116,6 +126,12 @@ func MapEquityOptionPayout:
                             ),
                     feature:
                         OptionFeature {
+                            digitalOption:
+                                if featurePayment exists
+                                then DigitalOption {
+                                        isApplicable: True,
+                                        ...
+                                    },
                             averagingFeature:
                                 AveragingFeature {
                                     averagingCalculation: empty,

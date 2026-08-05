@@ -192,6 +192,16 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
         then (settlementTerms -> securitySettlementCentre exists
                 and settlementTerms -> cashSettlementCentre exists)
 
+    condition DigitalCashOrNothingRequiresAmount: <"For cash-or-nothing digital options, a fixed cash settlement amount must be specified at trade formation.">
+        if feature -> digitalOption exists
+            and settlementTerms -> settlementType = SettlementTypeEnum -> Cash
+        then settlementTerms -> cashSettlementTerms -> cashSettlementAmount exists
+
+    condition DigitalAssetOrNothingNoAmount: <"For asset-or-nothing digital options, no fixed cash settlement amount should be specified as the payoff is the value of the underlying asset.">
+        if feature -> digitalOption exists
+            and settlementTerms -> settlementType = SettlementTypeEnum -> Physical
+        then settlementTerms -> cashSettlementTerms -> cashSettlementAmount is absent
+
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
     priceReturnTerms PriceReturnTerms (0..1) <"Return terms based upon the underlier's observed price.">
@@ -658,12 +668,26 @@ type FxFeature: <"A type for defining FX Features.">
     condition FxFeatureChoice: <" Choice rule to represent an FpML choice construct.">
         required choice composite, quanto, crossCurrency
 
+type DigitalOption: <"Marks an option payout as having a digital (binary) all-or-nothing payoff structure. The settlement type on the enclosing OptionPayout determines the sub-type: cash-or-nothing (SettlementTypeEnum -> Cash) or asset-or-nothing (SettlementTypeEnum -> Physical).">
+
+    isApplicable boolean (0..1) <"Presence marker indicating whether the digital option feature applies. Required because the enclosing DigitalOption type would otherwise be pruned from serialised output when empty; use true to indicate the trade is a digital option.">
+    trigger DigitalTrigger (0..*) <"The trigger level(s) that determine whether the digital option pays out. European-style digitals populate triggerTimeType = Closing (evaluated at expiry); American-style digitals populate triggerTimeType = Anytime and touchCondition (Touch / NoTouch).">
+
+    condition TouchConditionRequiresAmericanTime: <"Mirrors the FpML FxDigitalOption choice rule: touchCondition (Touch / NoTouch) is only meaningful for American-style continuously-monitored digitals. Whenever any trigger carries a touchCondition, its triggerTimeType must be Anytime.">
+        if trigger -> touchCondition exists
+        then trigger -> triggerTimeType all = TriggerTimeTypeEnum -> Anytime
+
+type DigitalTrigger extends Trigger: <"Trigger information specific to a digital (binary) option. Extends the base Trigger type (level, triggerType, triggerTimeType) with a touchCondition attribute that distinguishes Touch and NoTouch variants of American-style digitals. Semantically distinct from Barrier's use of Trigger: barrier triggers activate or terminate the option; digital triggers determine whether the fixed payoff is delivered.">
+
+    touchCondition TouchConditionEnum (0..1) <"Touch or NoTouch. Populated for American-style digitals where the option pays if the trigger rate is (or is not) touched during the continuous observation period. Absent for European-style digitals which are evaluated pass/fail at expiry.">
+
 type OptionFeature: <"Defines additional optional features that can be included in an option contract.">
     fxFeature FxFeature (0..*) <"Describes a quanto or composite FX feature.">
     strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
     averagingFeature AveragingFeature (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
     barrier Barrier (0..1) <"Specifies a barrier feature.">
     passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
+    digitalOption DigitalOption (0..1) <"Specifies the digital (binary) option feature, where the payoff is all-or-nothing: either a fixed cash amount or the underlying asset value.">
 
 type TerminationProvision: <"A class for defining option provisions.">
     cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">

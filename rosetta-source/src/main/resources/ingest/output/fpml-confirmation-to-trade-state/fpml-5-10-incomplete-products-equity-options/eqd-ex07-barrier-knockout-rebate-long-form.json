@@ -2,14 +2,14 @@
   "@model" : "cdm",
   "@type" : "cdm.event.common.TradeState",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "a0058683",
+  "@key" : "e90218f4",
   "trade" : {
     "product" : {
       "taxonomy" : [ {
         "source" : "ISDA",
         "value" : {
           "name" : {
-            "@data" : "EquityOption_PriceReturnBasicPerformance_Index"
+            "@data" : "EquityOther_Digital_Index"
           }
         },
         "calculated" : true
@@ -39,11 +39,26 @@
                   }
                 }
               }
-            }
+            },
+            "cashSettlementTerms" : [ {
+              "cashSettlementAmount" : {
+                "value" : 15000000,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "EUR"
+                  }
+                }
+              }
+            } ]
           },
           "buyerSeller" : {
             "buyer" : "Party1",
             "seller" : "Party2"
+          },
+          "feature" : {
+            "digitalOption" : {
+              "isApplicable" : true
+            }
           },
           "underlier" : {
             "@type" : "cdm.observable.asset.Observable",

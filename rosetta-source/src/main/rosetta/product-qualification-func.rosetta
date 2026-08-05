@@ -1088,6 +1088,51 @@ func Qualify_Equity_OtherOption: <"Qualifies a product with properties of an Exo
             and economicTerms -> payout only-element as OptionPayout exists
             and economicTerms -> nonStandardisedTerms = True
 
+func Qualify_EquityOther_Digital_SingleName: <"Qualifies a product as a Digital Equity Option on a single stock. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is a single equity security.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [docReference ISDA Taxonomy_v1 namingConvention "EquityOther"]
+            [docReference ISDA Taxonomy_v2 namingConvention "EquityOther"]
+    alias optionPayout: economicTerms -> payout only-element as OptionPayout
+    set is_product:
+        Qualify_AssetClass_Equity(economicTerms) = True
+            and optionPayout exists
+            and optionPayout -> feature -> digitalOption exists
+            and optionPayout -> underlier as Security exists
+
+func Qualify_EquityOther_Digital_Index: <"Qualifies a product as a Digital Equity Option on an index. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is an equity index.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [docReference ISDA Taxonomy_v1 namingConvention "EquityOther"]
+            [docReference ISDA Taxonomy_v2 namingConvention "EquityOther"]
+    alias optionPayout: economicTerms -> payout only-element as OptionPayout
+    set is_product:
+        Qualify_AssetClass_Equity(economicTerms) = True
+            and optionPayout exists
+            and optionPayout -> feature -> digitalOption exists
+            and optionPayout -> underlier as EquityIndex exists
+
+func Qualify_EquityOther_Digital_Basket: <"Qualifies a product as a Digital Equity Option on a basket. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is a basket.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [docReference ISDA Taxonomy_v1 namingConvention "EquityOther"]
+            [docReference ISDA Taxonomy_v2 namingConvention "EquityOther"]
+    alias optionPayout: economicTerms -> payout only-element as OptionPayout
+    set is_product:
+        Qualify_AssetClass_Equity(economicTerms) = True
+            and optionPayout exists
+            and optionPayout -> feature -> digitalOption exists
+            and optionPayout -> underlier as Basket exists
+
 func Qualify_BaseProduct_IRSwap: <"Qualifies a product as having the Base Product classification Interest Rate Swap.">
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -1761,6 +1806,20 @@ func Qualify_ForeignExchange_NDO: <"Qualifies a product as FX Non Deliverable Op
             and optionPayout exists
             and (optionPayout -> exerciseTerms -> style = OptionExerciseStyleEnum -> European)
             and optionPayout -> settlementTerms -> cashSettlementTerms exists
+
+func Qualify_ForeignExchange_SimpleExotic_Digital: <"Qualifies a product as a Digital FX Option. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) FX asset class, 2) single option payout, 3) digital feature present.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [docReference ISDA Taxonomy_v1 namingConvention "ForeignExchange_SimpleExotic_Digital"]
+            [docReference ISDA Taxonomy_v2 namingConvention "ForeignExchange_SimpleExotic_Digital"]
+    alias optionPayout: economicTerms -> payout only-element as OptionPayout
+    set is_product:
+        Qualify_AssetClass_ForeignExchange(economicTerms) = True
+            and optionPayout exists
+            and optionPayout -> feature -> digitalOption exists
 
 func Qualify_RepurchaseAgreement: <"Qualifies a product as a Repurchase Agreement based on the repo trate of the trade (ie the interest charges) being defined in an InterestRatePayout and the asset that is bought and sold being defined in an AssetPayout in a CollateralPosition.">
     [qualification Product]

@@ -4,10 +4,14 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.fx.* as fpml
 
 func MapFxDigitalOptionNonTransferableProduct:
@@ -93,7 +97,15 @@ func MapFxDigitalOptionPayout:
                                 fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
-                    underlier: empty,
+                    underlier:
+                        Underlier {
+                            Observable:
+                                Observable {
+                                    Asset: MapCurrencyToAssetCash(fpmlFxDigitalOption -> payout -> currency),
+                                    ...
+                                },
+                            ...
+                        },
                     exerciseTerms: MapExerciseTerms(
                                 GetFpmlFxDigitalExercise(fpmlFxDigitalOption),
                                 fpmlFxDigitalOption -> exerciseProcedure,
@@ -102,7 +114,85 @@ func MapFxDigitalOptionPayout:
                                 fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
+                    feature:
+                        OptionFeature {
+                            digitalOption:
+                                DigitalOption {
+                                    isApplicable: True,
+                                    trigger:
+                                        if fpmlFxDigitalOption -> trigger exists
+                                        then fpmlFxDigitalOption -> trigger
+                                            extract MapFxTriggerToDigitalTrigger(item)
+                                        else if fpmlFxDigitalOption -> touch exists
+                                        then fpmlFxDigitalOption -> touch
+                                            extract MapFxTouchToDigitalTrigger(item)
+                                },
+                            ...
+                        },
                     ...
                 },
             ...
         }
+
+func MapFxTriggerToDigitalTrigger: <"Maps an FpML FxTrigger (European-style digital trigger, evaluated at expiry) to a CDM DigitalTrigger with triggerTimeType = Closing.">
+    inputs:
+        fpmlFxTrigger fpml.FxTrigger (0..1)
+    output:
+        digitalTrigger DigitalTrigger (0..1)
+
+    set digitalTrigger:
+        DigitalTrigger {
+            level:
+                PriceSchedule {
+                    value: fpmlFxTrigger -> triggerRate,
+                    priceType: PriceTypeEnum -> ExchangeRate,
+                    ...
+                },
+            triggerType: MapTriggerConditionToTriggerType(fpmlFxTrigger -> triggerCondition),
+            triggerTimeType: TriggerTimeTypeEnum -> Closing,
+            ...
+        }
+
+func MapFxTouchToDigitalTrigger: <"Maps an FpML FxTouch (American-style digital trigger, continuously monitored) to a CDM DigitalTrigger with triggerTimeType = Anytime and populated touchCondition.">
+    inputs:
+        fpmlFxTouch fpml.FxTouch (0..1)
+    output:
+        digitalTrigger DigitalTrigger (0..1)
+
+    set digitalTrigger:
+        DigitalTrigger {
+            level:
+                PriceSchedule {
+                    value: fpmlFxTouch -> triggerRate,
+                    priceType: PriceTypeEnum -> ExchangeRate,
+                    ...
+                },
+            triggerType: MapTriggerConditionToTriggerType(fpmlFxTouch -> direction),
+            triggerTimeType: TriggerTimeTypeEnum -> Anytime,
+            touchCondition: MapTouchCondition(fpmlFxTouch -> touchCondition),
+            ...
+        }
+
+func MapTriggerConditionToTriggerType: <"Maps FpML TriggerConditionEnum (AtOrAbove / AtOrBelow) to CDM TriggerTypeEnum (EqualOrGreater / EqualOrLess).">
+    inputs:
+        fpmlTriggerCondition fpml.TriggerConditionEnum (0..1)
+    output:
+        triggerType TriggerTypeEnum (0..1)
+
+    set triggerType:
+        if fpmlTriggerCondition = fpml.TriggerConditionEnum -> AtOrAbove
+        then TriggerTypeEnum -> EqualOrGreater
+        else if fpmlTriggerCondition = fpml.TriggerConditionEnum -> AtOrBelow
+        then TriggerTypeEnum -> EqualOrLess
+
+func MapTouchCondition: <"Maps FpML TouchConditionEnum (Touch / Notouch) to CDM TouchConditionEnum (Touch / NoTouch).">
+    inputs:
+        fpmlTouchCondition fpml.TouchConditionEnum (0..1)
+    output:
+        touchCondition TouchConditionEnum (0..1)
+
+    set touchCondition:
+        if fpmlTouchCondition = fpml.TouchConditionEnum -> Touch
+        then TouchConditionEnum -> Touch
+        else if fpmlTouchCondition = fpml.TouchConditionEnum -> Notouch
+        then TouchConditionEnum -> NoTouch

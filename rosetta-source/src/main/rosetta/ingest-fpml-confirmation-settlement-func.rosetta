@@ -2,6 +2,7 @@ namespace cdm.ingest.fpml.confirmation.settlement
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.credit.*
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
@@ -19,6 +20,7 @@ import fpml.consolidated.eqd.* as fpml
 import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.fx.* as fpml
 import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.option.shared.* as fpml
 import fpml.consolidated.shared.* as fpml
 
 func MapSettlementProvisionToSettlementTerms:
@@ -138,6 +140,38 @@ func MapEquityExerciseValuationSettlementToSettlementTerms:
                     clearedPhysicalSettlement: fpmlClearingInstructions -> clearedPhysicalSettlement,
                     predeterminedClearingOrganizationParty: if fpmlClearingInstructions -> predeterminedClearingOrganizationPartyReference -> href exists
                             then AncillaryRoleEnum -> PredeterminedClearingOrganizationParty,
+                    ...
+                },
+            ...
+        }
+
+func MapEquityDigitalOptionSettlementTerms: <"Builds SettlementTerms for an equity digital (binary) option. Uses the standard MapEquityExerciseValuationSettlementToSettlementTerms to source settlementType, settlementDate, and settlementCurrency, then adds cashSettlementTerms populated from the FpML featurePayment (the fixed cash amount paid on trigger). Called by MapEquityOptionPayout when the FpML equityOption carries a featurePayment inside its feature -> barrier structure.">
+    inputs:
+        fpmlEquityExerciseValuationSettlement fpml.EquityExerciseValuationSettlement (0..1)
+        fpmlFeaturePayment fpml.FeaturePayment (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias baseSettlementTerms:
+        MapEquityExerciseValuationSettlementToSettlementTerms(fpmlEquityExerciseValuationSettlement, empty)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: baseSettlementTerms -> settlementType,
+            settlementDate: baseSettlementTerms -> settlementDate,
+            settlementCurrency: baseSettlementTerms -> settlementCurrency,
+            cashSettlementTerms:
+                CashSettlementTerms {
+                    cashSettlementAmount:
+                        Money {
+                            value: fpmlFeaturePayment -> amount,
+                            unit:
+                                UnitType {
+                                    currency: MapCurrency(fpmlFeaturePayment -> currency),
+                                    ...
+                                },
+                            ...
+                        },
                     ...
                 },
             ...
@@ -688,7 +722,21 @@ func MapFxDigitalOptionToSettlementTerms:
                     valueDate: MapZoneDateTimeToDate(settlementDate),
                     ...
                 },
-            settlementType: empty,
+            settlementType: SettlementTypeEnum -> Cash,
+            cashSettlementTerms:
+                CashSettlementTerms {
+                    cashSettlementAmount:
+                        Money {
+                            value: fpmlFxDigitalOption -> payout -> amount,
+                            unit:
+                                UnitType {
+                                    currency: MapCurrency(fpmlFxDigitalOption -> payout -> currency),
+                                    ...
+                                },
+                            ...
+                        },
+                    ...
+                },
             ...
         }
 

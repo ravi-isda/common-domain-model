@@ -2,7 +2,7 @@
   "@model" : "cdm",
   "@type" : "cdm.event.common.TradeState",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "dfb7dcd6",
+  "@key" : "1247c8d1",
   "trade" : {
     "product" : {
       "taxonomy" : [ {
@@ -13,6 +13,14 @@
             "@data" : "OneTouch"
           }
         }
+      }, {
+        "source" : "ISDA",
+        "value" : {
+          "name" : {
+            "@data" : "ForeignExchange_SimpleExotic_Digital"
+          }
+        },
+        "calculated" : true
       } ],
       "economicTerms" : {
         "payout" : [ {
@@ -22,13 +30,51 @@
             "receiver" : "Party1"
           },
           "settlementTerms" : {
+            "settlementType" : "Cash",
             "settlementDate" : {
               "valueDate" : "2001-11-26"
-            }
+            },
+            "cashSettlementTerms" : [ {
+              "cashSettlementAmount" : {
+                "value" : 2000000,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "GBP"
+                  }
+                }
+              }
+            } ]
           },
           "buyerSeller" : {
             "buyer" : "Party1",
             "seller" : "Party2"
+          },
+          "feature" : {
+            "digitalOption" : {
+              "isApplicable" : true,
+              "trigger" : [ {
+                "level" : [ {
+                  "value" : 1.5200,
+                  "priceType" : "ExchangeRate"
+                } ],
+                "triggerType" : "EqualOrGreater",
+                "triggerTimeType" : "Anytime",
+                "touchCondition" : "Touch"
+              } ]
+            }
+          },
+          "underlier" : {
+            "@type" : "cdm.observable.asset.Observable",
+            "@data" : {
+              "@type" : "cdm.base.staticdata.asset.common.Cash",
+              "identifier" : [ {
+                "identifier" : {
+                  "@data" : "GBP"
+                },
+                "identifierType" : "CurrencyCode"
+              } ],
+              "assetType" : "Cash"
+            }
           },
           "exerciseTerms" : {
             "style" : "American",

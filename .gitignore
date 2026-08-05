@@ -44,6 +44,8 @@ target/
 /documentation/build/
 
 .vscode/
+.claude/
+.agents/
 
 # python virtual env files
 venv/

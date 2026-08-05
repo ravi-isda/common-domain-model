@@ -2,7 +2,7 @@
   "@model" : "cdm",
   "@type" : "cdm.event.common.TradeState",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "a68bb9fc",
+  "@key" : "547620bf",
   "trade" : {
     "product" : {
       "taxonomy" : [ {
@@ -22,13 +22,50 @@
             "receiver" : "Party1"
           },
           "settlementTerms" : {
+            "settlementType" : "Cash",
             "settlementDate" : {
               "valueDate" : "2001-11-28"
-            }
+            },
+            "cashSettlementTerms" : [ {
+              "cashSettlementAmount" : {
+                "value" : 750000,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "GBP"
+                  }
+                }
+              }
+            } ]
           },
           "buyerSeller" : {
             "buyer" : "Party1",
             "seller" : "Party2"
+          },
+          "feature" : {
+            "digitalOption" : {
+              "isApplicable" : true,
+              "trigger" : [ {
+                "level" : [ {
+                  "value" : 1.4800,
+                  "priceType" : "ExchangeRate"
+                } ],
+                "triggerType" : "EqualOrGreater",
+                "triggerTimeType" : "Closing"
+              } ]
+            }
+          },
+          "underlier" : {
+            "@type" : "cdm.observable.asset.Observable",
+            "@data" : {
+              "@type" : "cdm.base.staticdata.asset.common.Cash",
+              "identifier" : [ {
+                "identifier" : {
+                  "@data" : "GBP"
+                },
+                "identifierType" : "CurrencyCode"
+              } ],
+              "assetType" : "Cash"
+            }
           },
           "exerciseTerms" : {
             "style" : "European",

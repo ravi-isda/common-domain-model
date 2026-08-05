@@ -23,6 +23,10 @@ enum TriggerTimeTypeEnum: <"The enumerated values to specify the time of day whi
     Closing <"The close of trading on a day would be considered for valuation.">
     Anytime <"At any time during the Knock Determination period (continuous barrier).">
 
+enum TouchConditionEnum: <"Specifies whether a digital option's trigger is a Touch (pays if the barrier is hit during the observation period) or NoTouch (pays if the barrier is not hit). Only applies to American-style digitals; not used for European-style digitals which are evaluated at expiry.">
+    Touch <"The option pays if the trigger rate is touched during the observation period.">
+    NoTouch <"The option pays if the trigger rate is NOT touched during the observation period.">
+
 enum ShareExtraordinaryEventEnum: <"The enumerated values to specify the consequences of extraordinary events relating to the underlying.">
     AlternativeObligation <"The trade continues such that the underlying now consists of the New Shares and/or the Other Consideration, if any, and the proceeds of any redemption, if any, that the holder of the underlying Shares would have been entitled to.">
     CancellationAndPayment <"The trade is cancelled and a cancellation fee will be paid by one party to the other.">

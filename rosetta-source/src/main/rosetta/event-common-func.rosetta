@@ -548,8 +548,11 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     add exercise: <"Reduces notional / quantity of option by the amount exercised.">
         Create_TradeState(exerciseInstruction -> exerciseQuantity, originalTrade)
 
-    add exercise: <"Adds the replacement trade">
-        execution
+    add exercise: <"Adds the replacement trade. Omitted for digital cash-or-nothing options where the payoff is a fixed cash amount only (delivered via the exerciseQuantity transfer), so no underlier is delivered and no replacement trade is created.">
+        if optionPayout -> feature -> digitalOption exists
+            and optionPayout -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
+        then empty
+        else execution
 
 func Update_ProductDirection: <"Flips the payer and receiver on a product (used when a Put Option is exercised).">
     inputs:
