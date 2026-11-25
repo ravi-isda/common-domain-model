@@ -1088,7 +1088,7 @@ func Qualify_Equity_OtherOption: <"Qualifies a product with properties of an Exo
             and economicTerms -> payout only-element as OptionPayout exists
             and economicTerms -> nonStandardisedTerms = True
 
-func Qualify_EquityOther_Digital_SingleName: <"Qualifies a product as a Digital Equity Option on a single stock. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is a single equity security.">
+func Qualify_EquityOption_Digital_SingleName: <"Qualifies a product as a Digital Equity Option on a single stock. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is a single equity security.">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -1103,7 +1103,7 @@ func Qualify_EquityOther_Digital_SingleName: <"Qualifies a product as a Digital 
             and optionPayout -> feature -> digitalOption exists
             and optionPayout -> underlier as Security exists
 
-func Qualify_EquityOther_Digital_Index: <"Qualifies a product as a Digital Equity Option on an index. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is an equity index.">
+func Qualify_EquityOption_Digital_Index: <"Qualifies a product as a Digital Equity Option on an index. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is an equity index.">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -1118,7 +1118,7 @@ func Qualify_EquityOther_Digital_Index: <"Qualifies a product as a Digital Equit
             and optionPayout -> feature -> digitalOption exists
             and optionPayout -> underlier as EquityIndex exists
 
-func Qualify_EquityOther_Digital_Basket: <"Qualifies a product as a Digital Equity Option on a basket. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is a basket.">
+func Qualify_EquityOption_Digital_Basket: <"Qualifies a product as a Digital Equity Option on a basket. Covers both Cash-or-Nothing and Asset-or-Nothing variants, which are distinguished by settlementType in the data but map to the same ISDA taxonomy label. Criteria: 1) Equity asset class, 2) single option payout, 3) digital feature present, 4) underlier is a basket.">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)

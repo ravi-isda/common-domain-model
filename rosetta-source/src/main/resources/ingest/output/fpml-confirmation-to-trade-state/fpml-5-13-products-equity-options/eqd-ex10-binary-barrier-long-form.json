@@ -9,7 +9,7 @@
         "source" : "ISDA",
         "value" : {
           "name" : {
-            "@data" : "EquityOther_Digital_Index"
+            "@data" : "EquityOption_Digital_Index"
           }
         },
         "calculated" : true

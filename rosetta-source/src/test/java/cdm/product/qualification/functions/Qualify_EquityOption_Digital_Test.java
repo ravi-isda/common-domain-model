@@ -31,9 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Qualify_EquityOption_Digital_Test extends AbstractFunctionTest {
 
-    @Inject Qualify_EquityOther_Digital_SingleName qualifySingleName;
-    @Inject Qualify_EquityOther_Digital_Index qualifyIndex;
-    @Inject Qualify_EquityOther_Digital_Basket qualifyBasket;
+    @Inject Qualify_EquityOption_Digital_SingleName qualifySingleName;
+    @Inject Qualify_EquityOption_Digital_Index qualifyIndex;
+    @Inject Qualify_EquityOption_Digital_Basket qualifyBasket;
     @Inject Qualify_EquityOption_PriceReturnBasicPerformance_SingleName qualifyVanillaSingleName;
     @Inject Qualify_EquityOption_PriceReturnBasicPerformance_Index qualifyVanillaIndex;
     @Inject Qualify_EquityOption_PriceReturnBasicPerformance_Basket qualifyVanillaBasket;
